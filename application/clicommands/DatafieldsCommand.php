@@ -22,9 +22,9 @@ class DatafieldsCommand extends Command
     {
         $db = $this->db();
         $result = array();
-        foreach ($this->getObjects() as $o) {
+        foreach ($this->getObjects() as $object) {
 
-            $result[] = $o->get('varname');
+            $result[] = $object->get('varname');
         }
 
         sort($result);
@@ -37,6 +37,31 @@ class DatafieldsCommand extends Command
             }
         }
     }
+
+    public function fetchAction()
+    {
+
+        if ($this->params->shift('json')) {
+            $noDefaults = $this->params->shift('no-defaults', false);
+        } else {
+            $this->fail('Currently only json is supported when fetching objects');
+        }
+
+        $db = $this->db();
+        $result = array();
+        foreach ($this->getObjects() as $object) {
+             $result[$object->get('varname')] = array(
+                 "caption" => $object->get('caption'),
+                 "description" => $object->get('description'),
+                 "datatype" => $object->get('datatype'),
+                 "format" => $object->get('format')
+             );
+
+        }
+
+        echo $this->renderJson($result, !$this->params->shift('no-pretty'));
+    }
+
 
     protected function getObjects()
     {
